@@ -39,7 +39,7 @@ def score(prediction, labels):
 
 def make_submission(title_vectorizer, classifiers, threshold, filename='submission.csv'):
     print "loading data..."
-    test = pd.read_csv('Test.csv', usecols=['Id', 'Title', 'Tags'])
+    test = pd.read_csv('Test.csv', usecols=['Id', 'Title', 'Tags'], nrows=100000)
     print "vectorizing titles..."
     X_test = title_vectorizer.transform(test['Title'])
     
@@ -52,8 +52,10 @@ def make_submission(title_vectorizer, classifiers, threshold, filename='submissi
     print "choosing output tags..."
     tags = []
     for isample in range(Y_test.shape[0]):
+        if isample%10000 == 0:
+            print isample
         tags.append(set(tag_vectorizer.inverse_transform(Y_test[isample])[0]))
-
+    
     with open(filename, 'w') as fd:
         writer = csv.writer(fd, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         writer.writerow(['Id','Tags'])
